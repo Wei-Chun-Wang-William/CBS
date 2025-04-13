@@ -1,0 +1,45 @@
+# ===============================
+# SSL
+# ===============================
+server:
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: classpath:server.jks
+#    key-store: file:src/main/resources/server.jks
+    key-store-password: ENC(G1Xc9fLcSJc5onU9m9B/6Z87O0naqAQYOoyMm9NcI5Q=)
+    keyStoreType: PKCS12
+
+spring:
+  datasource:
+    url: jdbc:postgresql://172.23.0.2:5432/con
+    username: conap1t
+    password: ENC(0KF6aOzY1mu90iz6I9Omv5yDAQ94mxsEN0yG2dKnry8=)
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connectionTimeout: 30000
+      maxLifetime: 1800000
+      maximum-pool-size: 3
+  jpa:
+    properties:
+      hibernate:
+        default_schema: dbo
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  server:
+    port: 8081
+
+log:
+  logstash-host: http://127.0.0.1:5044
