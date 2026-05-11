@@ -1,0 +1,22 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  apiServerPort: 6443
+nodes:
+  - role: control-plane
+    image: kindest/node:v1.29.2
+    extraPortMappings:
+      - containerPort: 30443
+        hostPort: 8443
+        protocol: TCP
+      - containerPort: 30081
+        hostPort: 8081
+        protocol: TCP
+
+containerdConfigPatches:
+  - |-
+    [plugins."io.containerd.grpc.v1.cri".registry.configs."ommo-gitlab:5050".tls]
+      insecure_skip_verify = true
+
+    [plugins."io.containerd.grpc.v1.cri".registry.configs."ommo-gitlab".tls]
+      insecure_skip_verify = true

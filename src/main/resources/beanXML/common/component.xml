@@ -7,8 +7,8 @@
 
     <import resource="dao.xml"/>
 
-    <bean id="cbsComponentImp" class="com.wwc.project.component.imp.CbsComponentImp">
-        <property name="cbsDaoImp" ref="cbsDaoImp"/>
+    <bean id="cbsComponent" class="com.wwc.project.component.imp.CbsComponentImp">
+        <property name="cbsDaoImp" ref="cbsDao"/>
     </bean>
 
 </beans>

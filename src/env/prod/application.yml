@@ -1,0 +1,55 @@
+# ===============================
+# SSL prod環境讓gcp自己控制，所以這裡回歸預設的http設定
+# ===============================
+server:
+  port: 8080
+  ssl:
+    enabled: false
+  shutdown: graceful
+  forward-headers-strategy: native
+
+spring:
+  datasource:
+    url: jdbc:postgresql:///con?cloudSqlInstance=project-edd93f9c-5be4-43ab-b4e:asia-east1:cbs-posgres-db&socketFactory=com.google.cloud.sql.postgres.SocketFactory
+    username: conap1p
+    password: ENC(273Xbt+GF80VYhJ1aISWn/ls32Qt0gUmlFopp5fUQRnGBDGsRDb5Xg==)
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connectionTimeout: 30000
+      maxLifetime: 1800000
+      maximum-pool-size: 3
+  jpa:
+    properties:
+      hibernate:
+        default_schema: dbo
+  task:
+    execution:
+      thread-name-prefix: MyCustomThreadPool- # 執行緒名稱前綴
+      pool:
+        core-size: 3 # 核心執行緒數
+        max-size: 8 # 最大執行緒數
+        queue-capacity: 15 # 佇列容量
+        keep-alive: 60s # 執行緒空閒存活時間 (例如：60秒)
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health, prometheus"
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  server:
+    port: 8081
+jwt:
+  secret: ENC(Jd2Vbme7LQtES/tJOTHPSXGAZcahI446eLf0UpE0RejhX0pZVchO4p75QFh1ETcRA2COcgWl480=)
+  expireTime: 1800000 # 30分鐘
+
+cors:
+  allowed-origins: "https://cbs-web-prod1-1021437008361.asia-east1.run.app" # 允許的來源
+  allowed-methods: "POST" # 允許的HTTP方法
+  allowed-headers: "*" # 允許的HTTP標頭

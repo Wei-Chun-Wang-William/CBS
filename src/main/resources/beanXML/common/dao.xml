@@ -7,7 +7,7 @@
 
     <import resource="dbcp_datasource.xml"/>
 
-    <bean id="cbsDaoImp" class="com.wwc.project.dao.imp.CbsDaoImp">
+    <bean id="cbsDao" class="com.wwc.project.dao.imp.CbsDaoImp">
         <property name="jdbcTemplate" ref="jdbcTemplate"/>
     </bean>
 

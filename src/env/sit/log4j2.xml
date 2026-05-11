@@ -1,88 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration>
-    <springProperty scope="context" name="logstash-host" cource="log.logstash-host"/>
+<Configuration status="WARN">
     <Properties>
-        <Property name="LOG_HOME">./logs</Property>
+        <Property name="LOG_PATH">./logs</Property>
+        <Property name="APP_NAME">cbs-service</Property>
     </Properties>
+
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
         </Console>
-        <RollingRandomAccessFile name="InfoLog" fileName="${LOG_HOME}/info.log"
-                     filePattern="${LOG_HOME}/info-%d{yyyy-MM-dd}-%i.log.gz">
-            <PatternLayout>
-                <prattern>%m%n</prattern>
-                <charset>UTF-8</charset>
-            </PatternLayout>
+
+        <RollingRandomAccessFile name="JsonLog"
+                                 fileName="${LOG_PATH}/app-json.log"
+                                 filePattern="${LOG_PATH}/app-json-%d{yyyy-MM-dd}-%i.log.gz">
+
+            <JsonTemplateLayout eventTemplateUri="classpath:EcsLayout.json">
+                <EventTemplateAdditionalField key="service.name" value="${APP_NAME}"/>
+                <EventTemplateAdditionalField key="event.dataset" value="${APP_NAME}.log"/>
+                <EventTemplateAdditionalField key="env" value="${sys:spring.profiles.active:-sit}"/>
+            </JsonTemplateLayout>
+
             <Policies>
                 <TimeBasedTriggeringPolicy />
                 <SizeBasedTriggeringPolicy size="500MB"/>
             </Policies>
-            <DefaultRolloverStrategy max="10">
-                <Delete basePath="${LOG_HOME}" maxDepth="4">
-                    <IfFileName glob="info-*.log.gz"/>
-                    <IfLastModified age="1d"/>
-                </Delete>
-            </DefaultRolloverStrategy>
-            <Filters>
-                <ThresholdFilter level ="warn" onMatch="Deny" onMismatch="NEUTRAL"/>
-                <ThresholdFilter level ="info" onMatch="ACCEPT" onMismatch="DENY"/>
-            </Filters>
+            <DefaultRolloverStrategy max="10" />
         </RollingRandomAccessFile>
 
-        <RollingRandomAccessFile name="WarnLog" fileName="${LOG_HOME}/warn.log"
-                                 filePattern="${LOG_HOME}/$${date:yyyy-MM}/warn-%d{yyyy-MM-dd}-%i.log.gz">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
-            <Policies>
-                <TimeBasedTriggeringPolicy />
-                <SizeBasedTriggeringPolicy size="500MB"/>
-            </Policies>
-            <DefaultRolloverStrategy max="10">
-                <Delete basePath="${LOG_HOME}" maxDepth="4">
-                    <IfFileName glob="warn*.log.gz"/>
-                    <IfLastModified age="1d"/>
-                </Delete>
-            </DefaultRolloverStrategy>
-            <Filters>
-                <ThresholdFilter level ="error" onMatch="Deny" onMismatch="NEUTRAL"/>
-                <ThresholdFilter level ="warn" onMatch="ACCEPT" onMismatch="DENY"/>
-            </Filters>
-        </RollingRandomAccessFile>
-
-        <RollingRandomAccessFile name="ErrorLog" fileName="${LOG_HOME}/error.log"
-                                 filePattern="${LOG_HOME}/$${date:yyyy-MM}/error-%d{yyyy-MM-dd}-%i.log.gz">
+        <RollingRandomAccessFile name="ErrorLog"
+                                 fileName="${LOG_PATH}/error.log"
+                                 filePattern="${LOG_PATH}/error-%d{yyyy-MM-dd}-%i.log.gz">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n" />
-            <Policies>
-                <TimeBasedTriggeringPolicy />
-                <SizeBasedTriggeringPolicy size="500MB"/>
-            </Policies>
-            <DefaultRolloverStrategy max="10">
-                <Delete basePath="${LOG_HOME}" maxDepth="4">
-                    <IfFileName glob="error*.log.gz"/>
-                    <IfLastModified age="1d"/>
-                </Delete>
-            </DefaultRolloverStrategy>
             <Filters>
-                <ThresholdFilter level ="error" onMatch="ACCEPT" onMismatch="DENY"/>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10" />
         </RollingRandomAccessFile>
 
-        <Socket name="socket" host="127.0.0.1" port="5044" protocol="TCP">
-            <JsonLayout properties="true"/>
-        </Socket>
+        <Http name="LogstashHttp" url="http://elk-logstash-1:5044" method="POST">
+            <JsonTemplateLayout eventTemplateUri="classpath:EcsLayout.json">
+                <EventTemplateAdditionalField key="service.name" value="${APP_NAME}"/>
+                <EventTemplateAdditionalField key="env" value="${sys:spring.profiles.active:-dev}"/>
+            </JsonTemplateLayout>
 
-        <Http name="Http" url="http://localhost:5044">
-            <JsonLayout properties="true"/>
+            <Property name="connectTimeoutMillis">1000</Property>
+            <Property name="readTimeoutMillis">1000</Property>
         </Http>
     </Appenders>
 
     <Loggers>
         <Root level="info">
             <AppenderRef ref="Console" />
-            <AppenderRef ref="InfoLog" />
-            <AppenderRef ref="WarnLog" />
+            <AppenderRef ref="JsonLog" />
             <AppenderRef ref="ErrorLog" />
-            <AppenderRef ref="Http"/>
+            <AppenderRef ref="LogstashHttp" />
         </Root>
+
+<!--        <Logger name="com.wwc.project" level="debug" additivity="false">-->
+<!--            <AppenderRef ref="Console" />-->
+<!--            <AppenderRef ref="JsonLog" />-->
+<!--        </Logger>-->
     </Loggers>
 </Configuration>

@@ -1,31 +1,36 @@
 package com.wwc.project.bean.po;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.Data;
 
-@Data
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name = "con_users")
+@Table(name = "con_users", schema = "dbo")
+@Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class JpaUserPo {
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @Column(name = "user_id", length = 32)
     private String userId;
 
-    @Column(name = "user_name")
+    @Column(name = "user_name", nullable = false, length = 20)
     private String userName;
 
-    @Column(name = "email")
+    @Column(nullable = false, length = 50)
     private String email;
 
-    @Column(name = "phone")
+    @Column(length = 10)
     private String phone;
 
-    @Column(name = "password")
+    @Column(nullable = false, length = 100)
     private String password;
 
-    @Column(name = "crt_datetime")
-    private String crtDatetime;
+    @Column(name = "crt_datetime", nullable = false, updatable = false)
+    private LocalDateTime crtDatetime = LocalDateTime.now();
 
-    @Column(name = "ver")
-    private String ver;
+    @Version
+    @Column(nullable = false)
+    private LocalDateTime ver;
 }

@@ -7,7 +7,8 @@ server:
     enabled: true
     key-store: classpath:server.jks
     key-store-password: ENC(G1Xc9fLcSJc5onU9m9B/6Z87O0naqAQYOoyMm9NcI5Q=)
-    keyStoreType: PKCS12
+  shutdown: graceful
+#    key-store-type: PKCS12
 
 spring:
   datasource:
@@ -23,7 +24,14 @@ spring:
     properties:
       hibernate:
         default_schema: dbo
-
+  task:
+    execution:
+      thread-name-prefix: MyCustomThreadPool- # 執行緒名稱前綴
+      pool:
+        core-size: 3 # 核心執行緒數
+        max-size: 8 # 最大執行緒數
+        queue-capacity: 15 # 佇列容量
+        keep-alive: 60s # 執行緒空閒存活時間 (例如：60秒)
 
 management:
   endpoints:
@@ -40,5 +48,11 @@ management:
   server:
     port: 8081
 
-log:
-  logstash-host: http://127.0.0.1:5044
+jwt:
+  secret: ENC(Jd2Vbme7LQtES/tJOTHPSXGAZcahI446eLf0UpE0RejhX0pZVchO4p75QFh1ETcRA2COcgWl480=)
+  expireTime: 1800000 # 30分鐘
+
+cors:
+  allowed-origins: "https://localhost:5173" # 允許的來源
+  allowed-methods: "POST" # 允許的HTTP方法
+  allowed-headers: "*" # 允許的HTTP標頭

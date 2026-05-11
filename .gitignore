@@ -32,3 +32,13 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+src/env/dev/salt.properties
+src/env/dev/server.jks
+src/env/sit/salt.properties
+src/env/sit/server.jks
+src/env/prod/salt.properties
+src/env/prod/server.jks
+src/main/resources/salt.properties
+src/main/resources/server.jks

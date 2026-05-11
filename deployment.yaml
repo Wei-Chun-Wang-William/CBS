@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: project-cbs
+  labels:
+    app: project-cbs
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: project-cbs
+  template:
+    metadata:
+      labels:
+        app: project-cbs
+    spec:
+      # 👇 1. 告訴 K8s 使用這把鑰匙去 GitLab Registry 拉取 Image
+      imagePullSecrets:
+        - name: gitlab-registry-secret
+
+      containers:
+        - name: project-cbs
+          image: ommo-gitlab:5050/ommo/cbs:latest
+          # 如果設定成Always則啟動cluster後要先手動拉取image，kind load docker-image ommo-gitlab:5050/ommo/cbs:latest --name kind
+          # 設定成IfNotPresent則啟動cluster後會自動從本地拉取image，前提是image已經存在於本地
+          imagePullPolicy: IfNotPresent
+
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          ports:
+            - containerPort: 8443 # 應用程式 SSL Port
+            - containerPort: 8081 # Actuator/Metrics Port
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+              scheme: HTTPS
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+              scheme: HTTPS
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          env:
+            - name: JASYPT_ENCRYPTOR_PASSWORD
+              value: "ommocon"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "sit"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: project-cbs-service
+spec:
+  type: NodePort
+  selector:
+    app: project-cbs
+  ports:
+    - name: https
+      protocol: TCP
+      port: 8443
+      targetPort: 8443
+      nodePort: 30443
+    - name: management
+      protocol: TCP
+      port: 8081
+      targetPort: 8081
+      nodePort: 30081

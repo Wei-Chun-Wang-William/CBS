@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <Property name="LOG_PATH">./logs</Property>
+        <Property name="APP_NAME">cbs-service</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+        </Console>
+
+        <RollingRandomAccessFile name="JsonLog"
+                                 fileName="${LOG_PATH}/app-json.log"
+                                 filePattern="${LOG_PATH}/app-json-%d{yyyy-MM-dd}-%i.log.gz">
+
+            <JsonTemplateLayout eventTemplateUri="classpath:EcsLayout.json">
+                <EventTemplateAdditionalField key="service.name" value="${APP_NAME}"/>
+                <EventTemplateAdditionalField key="event.dataset" value="${APP_NAME}.log"/>
+                <EventTemplateAdditionalField key="env" value="${sys:spring.profiles.active:-prod}"/>
+            </JsonTemplateLayout>
+
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="500MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10" />
+        </RollingRandomAccessFile>
+
+        <RollingRandomAccessFile name="ErrorLog"
+                                 fileName="${LOG_PATH}/error.log"
+                                 filePattern="${LOG_PATH}/error-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n" />
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10" />
+        </RollingRandomAccessFile>
+
+<!--        <Http name="LogstashHttp" url="http://localhost:5044" method="POST">-->
+<!--            <JsonTemplateLayout eventTemplateUri="classpath:EcsLayout.json">-->
+<!--                <EventTemplateAdditionalField key="service.name" value="${APP_NAME}"/>-->
+<!--                <EventTemplateAdditionalField key="env" value="${sys:spring.profiles.active:-dev}"/>-->
+<!--            </JsonTemplateLayout>-->
+
+<!--            <Property name="connectTimeoutMillis">1000</Property>-->
+<!--            <Property name="readTimeoutMillis">1000</Property>-->
+<!--        </Http>-->
+    </Appenders>
+
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="JsonLog" />
+            <AppenderRef ref="ErrorLog" />
+<!--            <AppenderRef ref="LogstashHttp" />-->
+        </Root>
+
+<!--        <Logger name="com.wwc.project" level="debug" additivity="false">-->
+<!--            <AppenderRef ref="Console" />-->
+<!--            <AppenderRef ref="JsonLog" />-->
+<!--        </Logger>-->
+    </Loggers>
+</Configuration>

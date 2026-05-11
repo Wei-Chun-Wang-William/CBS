@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class ReponseBodyMapper<T> {
     private T data;
+    private String message;
 }

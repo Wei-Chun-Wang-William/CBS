@@ -8,7 +8,7 @@
 
     <import resource="component.xml"/>
     <bean id="cbsServiceImp" class="com.wwc.project.service.imp.CbsServiceImp">
-        <property name="cbsComponentImp" ref="cbsComponentImp"/>
+        <property name="cbsComponent" ref="cbsComponent"/>
     </bean>
 
 </beans>
