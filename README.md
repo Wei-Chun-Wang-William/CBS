@@ -105,27 +105,6 @@ Key configurations:
 - Logging levels
 - Thread pool settings
 
-## API Endpoints
-
-Base URL: `https://localhost:8443/cbsController`
-
-### Authentication
-- `POST /login` - User login
-- `POST /register` - User registration
-
-### Users
-- `POST /queryUsers` - Get all users
-- `GET /user/{id}` - Get user by ID
-
-### Concerts
-- `GET /concerts` - List concerts
-- `POST /concerts` - Create concert
-- `PUT /concerts/{id}` - Update concert
-
-### Bookings
-- `POST /book` - Create booking
-- `GET /bookings/{userId}` - Get user bookings
-
 ## Security
 
 - All endpoints are secured with JWT tokens
@@ -140,71 +119,13 @@ Access actuator endpoints at `http://localhost:8081`:
 - `/actuator/health` - Application health
 - `/actuator/metrics` - Application metrics
 - `/actuator/info` - Application info
-- `/actuator/prometheus` - Prometheus metrics
 
 ## Logging
 
-Logs are written to:
-- `logs/app-json.log` - JSON formatted application logs
-- `logs/error.log` - Error logs
-
 Log files are rotated and compressed daily.
 
-## Testing
-
-Run tests with:
-```bash
-./mvnw test
-```
 
 ## Building for Production
 
-```bash
-./mvnw clean package -DskipTests
-```
-
 The JAR file will be created in `target/project-CBS.jar`
 
-## Troubleshooting
-
-### Common Issues
-
-1. **Database Connection Failed**
-   - Verify PostgreSQL is running
-   - Check credentials in `application.yml`
-   - Ensure database `con` exists
-
-2. **SSL Certificate Issues**
-   - Verify `server.jks` file exists
-   - Check encrypted password in config
-
-3. **Encryption Errors**
-   - Ensure `salt.properties` has correct keys
-   - Verify Jasypt configuration
-
-4. **Port Conflicts**
-   - Change ports in `application.yml` if 8443/8081 are in use
-
-### JPA/Hibernate Issues
-
-If you encounter errors like "Row was updated or deleted by another transaction":
-- Check transaction management in service layer
-- Ensure proper `@Transactional` annotations
-- Verify optimistic locking configuration
-- Check for concurrent modifications
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Support
-
-For support, please contact the development team or create an issue in the repository.
